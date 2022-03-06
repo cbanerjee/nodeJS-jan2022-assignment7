@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        .outerdiv {
+            margin: 10px 10px 10px 10px;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat</title>
+</head>
+
+<body>
+    <h3 class="outerdiv">Chat Box</h3>
+    <p>
+
+    </p>
+    <form id="name-form" class="outerdiv" action="">
+        <div class="row" id="nick_name_div">
+            <div class="col-md-6">
+                <input type="text" id="nickname" name="nickname" class="form-control" placeholder="Set nickname first">
+            </div>
+            <div class="col-md-6">
+                <button name="nickname_button" class="btn btn-primary">Set Nickname</button>
+            </div>
+        </div>
+    </form>
+    <script>
+        $(function () {
+            const socket = io()
+            let name_set = false
+            $("form[id='name-form']").submit(function () {
+                socket.emit('nick', $("#nickname").val());
+                name_set = true;
+                $('#message_send').prop( "disabled", false );
+                // $('message').prop( "disabled", false );
+                return false;
+            });
+
+            socket.on("activeUsers", (name_) => {
+                $('#activeuser').empty();
+                data.map((item) => {
+                    $('#activeuser').append($('<li>').text(`User: <b>${item}</b>`));
+                })
+                let total = data.length;
+                document.getElementById('no_users').innerHTML = total
+                $('no_users').val(total);
+            })
+
+            $('form[name="send_message"]').submit(function () {
+                socket.emit('chat', {
+                    message: $("#message").val()
+                });
+                $("#message").val('');
+                return false;
+            });
+            socket.on("chat", (data) => {
+                $("#messages").append($('<li>').text(data));
+            })
+        });
+    </script>
+
+    <form name="send_message" class="outerdiv" action="">
+        <ul id="messages" class="card">
+        </ul>
+        <textarea class="form-control" name="message" id="message" placeholder="Enter Message" rows="2"></textarea>
+        <p>
+
+        </p>
+        <button type="submit" id="message_send" name="message_send" class="btn btn-primary" disabled>Send
+            Message</button>
+    </form>
+    <div class="card outerdiv">
+        <h3>Active Users : <b id="no_users"></b>
+        </h3>
+        <ul id="activeuser"></ul>
+    </div>
+
+</body>
+
+</html>
